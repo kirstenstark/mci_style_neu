@@ -1,10 +1,15 @@
-#/* Run this first piece of code only if you want to create a markdown report for GitHub/OSF
+#/* Run this first piece of code only if you want to create a PDF report for GitHub/OSF
 rmarkdown::render(input = rstudioapi::getSourceEditorContext()$path,
-                  output_format = rmarkdown::md_document(),
-                  output_dir = "Scripts/Output",
+                  output_format = rmarkdown::pdf_document(),
+                  output_dir = "output",
                   knit_root_dir = getwd()) #*/
+#' ---
+#' author: Aristei et al.
+#' date: 2020
+#' classoption: landscape
+#' ---
 
-### MCI_STYLE_NEU MIXED MODELS SCRIPT ###
+## MCI_STYLE_NEU MIXED MODELS SCRIPT ##
 
 # Computes linear mixed-effects regression models with simple contrast coding for the fixed effects of semantics and
 # narrative context (the context being emotionally neutral). Thus, in each model, the estimate of the intercept is the

@@ -1,10 +1,15 @@
-#/* Run this first piece of code only if you want to create a markdown report for GitHub/OSF
+#/* Run this first piece of code only if you want to create a PDF report for GitHub/OSF
 rmarkdown::render(input = rstudioapi::getSourceEditorContext()$path,
-                  output_format = rmarkdown::md_document(),
-                  output_dir = "Scripts/Output",
+                  output_format = rmarkdown::pdf_document(),
+                  output_dir = "output",
                   knit_root_dir = getwd()) #*/
+#' ---
+#' author: Aristei et al.
+#' date: 2020
+#' classoption: landscape
+#' ---
 
-### MCI_STYLE_NEU PLOTTING SCRIPT ###
+## MCI_STYLE_NEU PLOTTING SCRIPT ##
 
 # Creates a bar plot, an ERP waveform, and scalp topographies for the N400 effect for the different semantic conditions
 # (intuitive, violation, MCI) within each type of narrative  context (normal, fairytale), separately for verb- and

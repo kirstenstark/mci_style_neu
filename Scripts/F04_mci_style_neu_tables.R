@@ -1,7 +1,7 @@
 #/* Run this first piece of code only if you want to create a PDF report for GitHub/OSF
 rmarkdown::render(input = rstudioapi::getSourceEditorContext()$path,
                   output_format = rmarkdown::pdf_document(),
-                  output_dir = "Scripts/Output",
+                  output_dir = "output",
                   knit_root_dir = getwd()) #*/
 #' ---
 #' author: Aristei et al.
