@@ -14,7 +14,7 @@
 
 <meta name="date" content="2020-09-18" />
 
-<title>F05_mci_style_neu_descriptives.R</title>
+<title>F04_mci_style_neu_tables.R</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -140,7 +140,7 @@ a.sourceLine {
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">F05_mci_style_neu_descriptives.R</h1>
+<h1 class="title toc-ignore project-name">F04_mci_style_neu_tables.R</h1>
 <h4 class="author project-author">alexander</h4>
 <h4 class="date project-date">2020-09-18</h4>
 </section>
@@ -148,73 +148,200 @@ a.sourceLine {
 
 
 <section class="main-content">
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="co">## MCI_STYLE_NEU DESCRIPTIVES SCRIPT ##</span></span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="co">## MCI_STYLE_NEU TABLES SCRIPT ##</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="co"># Gives descriptive information about the number of (a) rejected ERP epochs and (b) errors or unrealistically short</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="co"># reaction times per participant. For the latter, an ANOVA also checks whether the number of errors differs between</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a><span class="co"># experimental conditions.</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a><span class="co"># Load packages</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a><span class="kw">library</span>(Rmisc)        <span class="co"># version 1.5</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a><span class="kw">library</span>(tidyverse)    <span class="co"># Version 1.3.0</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a><span class="kw">library</span>(magrittr)     <span class="co"># Version 1.5</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a><span class="co"># Load preprocessed data</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a>a1 &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;EEG/export/a1.RDS&quot;</span>)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a><span class="co"># Add a column for artifact-rejected ERPs</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a>a1 <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">rejected =</span> <span class="kw">is.na</span>(N400_verb) <span class="op">|</span><span class="st"> </span><span class="kw">is.na</span>(N400_pict))</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true"></a><span class="co"># Check number of rejected ERPs participant</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true"></a><span class="kw">mean</span>(<span class="kw">table</span>(a1<span class="op">$</span>rejected, a1<span class="op">$</span>participant)[<span class="dv">2</span>,])      <span class="co"># Mean</span></span></code></pre></div>
-<pre><code>## [1] 10.29167</code></pre>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="kw">mean</span>(<span class="kw">table</span>(a1<span class="op">$</span>rejected, a1<span class="op">$</span>participant)[<span class="dv">2</span>,])<span class="op">/</span><span class="dv">300</span>  <span class="co"># Percent</span></span></code></pre></div>
-<pre><code>## [1] 0.03430556</code></pre>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="kw">median</span>(<span class="kw">table</span>(a1<span class="op">$</span>rejected, a1<span class="op">$</span>participant)[<span class="dv">2</span>,])    <span class="co"># Median</span></span></code></pre></div>
-<pre><code>## [1] 3</code></pre>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="kw">min</span>(<span class="kw">table</span>(a1<span class="op">$</span>rejected, a1<span class="op">$</span>participant)[<span class="dv">2</span>,])       <span class="co"># Min</span></span></code></pre></div>
-<pre><code>## [1] 0</code></pre>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">max</span>(<span class="kw">table</span>(a1<span class="op">$</span>rejected, a1<span class="op">$</span>participant)[<span class="dv">2</span>,])       <span class="co"># Max</span></span></code></pre></div>
-<pre><code>## [1] 116</code></pre>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="co"># Remove rejected ERPs from the data</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>a1 <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">filter</span>(<span class="op">!</span>rejected)</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a><span class="co"># Check number of errors per participant</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true"></a><span class="kw">mean</span>(<span class="kw">table</span>(a1<span class="op">$</span>error, a1<span class="op">$</span>participant)[<span class="dv">2</span>,])      <span class="co"># Mean</span></span></code></pre></div>
-<pre><code>## [1] 1.5</code></pre>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="kw">mean</span>(<span class="kw">table</span>(a1<span class="op">$</span>error, a1<span class="op">$</span>participant)[<span class="dv">2</span>,])<span class="op">/</span><span class="dv">300</span>  <span class="co"># Percent</span></span></code></pre></div>
-<pre><code>## [1] 0.005</code></pre>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a><span class="kw">median</span>(<span class="kw">table</span>(a1<span class="op">$</span>error, a1<span class="op">$</span>participant)[<span class="dv">2</span>,])    <span class="co"># Median</span></span></code></pre></div>
-<pre><code>## [1] 1</code></pre>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a><span class="kw">min</span>(<span class="kw">table</span>(a1<span class="op">$</span>error, a1<span class="op">$</span>participant)[<span class="dv">2</span>,])       <span class="co"># Min</span></span></code></pre></div>
-<pre><code>## [1] 0</code></pre>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a><span class="kw">max</span>(<span class="kw">table</span>(a1<span class="op">$</span>error, a1<span class="op">$</span>participant)[<span class="dv">2</span>,])       <span class="co"># Max</span></span></code></pre></div>
-<pre><code>## [1] 8</code></pre>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true"></a><span class="co"># Check if error rates differ between conditions</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true"></a>accuracy &lt;-<span class="st"> </span><span class="kw">summarySEwithin</span>(a1, <span class="dt">measurevar =</span> <span class="st">&quot;error&quot;</span>, <span class="dt">withinvars =</span> <span class="kw">c</span>(<span class="st">&quot;semantics&quot;</span>, <span class="st">&quot;style&quot;</span>),</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true"></a>                            <span class="dt">betweenvars =</span> <span class="st">&quot;participant&quot;</span>, <span class="dt">idvar =</span> <span class="st">&quot;participant&quot;</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true"></a><span class="kw">summary</span>(<span class="kw">aov</span>(error <span class="op">~</span><span class="st"> </span>semantics<span class="op">*</span>style <span class="op">+</span><span class="st"> </span><span class="kw">Error</span>(participant<span class="op">/</span>(semantics<span class="op">*</span>style)), <span class="dt">data =</span> accuracy))</span></code></pre></div>
-<pre><code>## 
-## Error: participant
-##           Df    Sum Sq   Mean Sq F value Pr(&gt;F)
-## Residuals 23 3.735e-07 1.624e-08               
-## 
-## Error: participant:semantics
-##           Df   Sum Sq   Mean Sq F value Pr(&gt;F)
-## semantics  2 0.000396 0.0001978   1.849  0.169
-## Residuals 46 0.004921 0.0001070               
-## 
-## Error: participant:style
-##           Df   Sum Sq   Mean Sq F value Pr(&gt;F)
-## style      1 0.000008 8.030e-06   0.063  0.805
-## Residuals 23 0.002955 1.285e-04               
-## 
-## Error: participant:semantics:style
-##                 Df   Sum Sq   Mean Sq F value Pr(&gt;F)
-## semantics:style  2 0.000111 5.533e-05   0.643   0.53
-## Residuals       46 0.003958 8.605e-05</code></pre>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true"></a><span class="co"># System specs and package versions</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="co"># Creates a table for the output of our four linear mixed-effects models. The upper half of the table includes ANOVA-</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="co"># style type III tests (F-tests), the bottom half contains planned follow-up contrasts. For the F-tests, F-values,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a><span class="co"># degrees of freedom, and p-values are  printed, whereas for the contrasts, regression estimates, 95% confidence</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a><span class="co"># intervals, and p-values are printed.</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a><span class="co"># Load packages</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a><span class="kw">library</span>(huxtable)    <span class="co"># Version 5.0.0</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a><span class="co"># Load output from mixed models</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a><span class="kw">load</span>(<span class="st">&quot;EEG/export/stats.RData&quot;</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true"></a><span class="co"># Extract a table for the F tests for each model (columns: F value (df), p-value)</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true"></a>anovas &lt;-<span class="st"> </span><span class="kw">lapply</span>(tests, <span class="cf">function</span>(x){</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true"></a>  coefs &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">paste0</span>(<span class="kw">format</span>(<span class="kw">round</span>(x<span class="op">$</span><span class="st">`</span><span class="dt">F value</span><span class="st">`</span>, <span class="dv">2</span>), <span class="dt">trim =</span> <span class="ot">TRUE</span>, <span class="dt">nsmall =</span> <span class="dv">2</span>),</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true"></a>                             <span class="st">&quot;&lt;br/&gt;(&quot;</span>, x<span class="op">$</span>NumDF, <span class="st">&quot;, &quot;</span>, <span class="kw">format</span>(<span class="kw">round</span>(x<span class="op">$</span>DenDF, <span class="dv">1</span>), <span class="dt">trim =</span> <span class="ot">TRUE</span>, <span class="dt">nsmall =</span> <span class="dv">1</span>), <span class="st">&quot;)&quot;</span>),</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true"></a>                      <span class="kw">format</span>(<span class="kw">round</span>(x<span class="op">$</span><span class="st">`</span><span class="dt">Pr(&gt;F)</span><span class="st">`</span>, <span class="dv">3</span>), <span class="dt">nsmall =</span> <span class="dv">3</span>),</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true"></a>                      <span class="dt">fix.empty.names =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true"></a>  coefs[,<span class="dv">2</span>] &lt;-<span class="st"> </span><span class="kw">substr</span>(coefs[,<span class="dv">2</span>], <span class="dv">1</span>, <span class="dv">5</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true"></a>  coefs[coefs[,<span class="dv">2</span>] <span class="op">==</span><span class="st"> &quot;0.000&quot;</span>, <span class="dv">2</span>] &lt;-<span class="st"> &quot;&lt; .001&quot;</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true"></a>  <span class="kw">return</span>(coefs)})</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true"></a><span class="co"># Bind all the F-tests to one data frame</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true"></a>anovas &lt;-<span class="st"> </span><span class="kw">do.call</span>(cbind, anovas)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true"></a>anovas &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="kw">c</span>(<span class="st">&quot;**_F_** (**_df_**)&quot;</span>, <span class="st">&quot;**_p_**&quot;</span>), anovas)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true"></a><span class="co"># Extract a table for the planned contrasts for each model (columns: estimate [CI], p-value)</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true"></a>conts &lt;-<span class="st"> </span><span class="kw">lapply</span>(means.nested, <span class="cf">function</span>(x){</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true"></a>  x &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(x)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true"></a>  coefs &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">paste0</span>(<span class="kw">format</span>(<span class="kw">round</span>(x<span class="op">$</span>estimate, <span class="dv">2</span>), <span class="dt">trim =</span> <span class="ot">TRUE</span>, <span class="dt">nsmall =</span> <span class="dv">2</span>),</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true"></a>                             <span class="st">&quot;&lt;br/&gt;[&quot;</span>, <span class="kw">format</span>(<span class="kw">round</span>(x<span class="op">$</span>lower.CL, <span class="dv">2</span>), <span class="dt">trim =</span> <span class="ot">TRUE</span>, <span class="dt">nsmall =</span> <span class="dv">2</span>), <span class="st">&quot;, &quot;</span>,</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true"></a>                             <span class="kw">format</span>(<span class="kw">round</span>(x<span class="op">$</span>upper.CL, <span class="dv">2</span>), <span class="dt">trim =</span> <span class="ot">TRUE</span>, <span class="dt">nsmall =</span> <span class="dv">2</span>), <span class="st">&quot;]&quot;</span>),</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true"></a>                      <span class="kw">format</span>(<span class="kw">round</span>(x<span class="op">$</span>p.value, <span class="dv">3</span>), <span class="dt">nsmall =</span> <span class="dv">3</span>),</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true"></a>                      <span class="dt">fix.empty.names =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true"></a>  coefs[,<span class="dv">2</span>] &lt;-<span class="st"> </span><span class="kw">substr</span>(coefs[,<span class="dv">2</span>], <span class="dv">1</span>, <span class="dv">5</span>)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true"></a>  coefs[coefs[,<span class="dv">2</span>] <span class="op">==</span><span class="st"> &quot;0.000&quot;</span>, <span class="dv">2</span>] &lt;-<span class="st"> &quot;&lt; .001&quot;</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true"></a>  <span class="kw">return</span>(coefs)})</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true"></a></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true"></a><span class="co"># Bind all the planned contrasts to one data frame</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true"></a>conts &lt;-<span class="st"> </span><span class="kw">do.call</span>(cbind, conts)</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true"></a>conts &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="kw">c</span>(<span class="st">&quot;**Est. [95% CI]**&quot;</span>, <span class="st">&quot;**_p_**&quot;</span>), conts)</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true"></a></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true"></a><span class="co"># Bind both data frames (F-tests and contrasts) below one another</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true"></a>tab &lt;-<span class="st"> </span><span class="kw">rbind</span>(anovas, conts)</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true"></a></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true"></a><span class="co"># Add model names (dependent variables) as the first row</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true"></a>tab &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="kw">c</span>(<span class="st">&quot;Rating 1&quot;</span>, <span class="st">&quot;&quot;</span>, <span class="st">&quot;Rating 2&quot;</span>, <span class="st">&quot;&quot;</span>, <span class="st">&quot;Verb-Related N400&quot;</span>, <span class="st">&quot;&quot;</span>, <span class="st">&quot;Picture-Related N400&quot;</span>, <span class="st">&quot;&quot;</span>), tab)</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true"></a></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true"></a><span class="co"># Add a stub column</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true"></a>tab &lt;-<span class="st"> </span><span class="kw">cbind</span>(<span class="kw">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;**Model output**&quot;</span>, <span class="st">&quot;Semantics&quot;</span>, <span class="st">&quot;Style&quot;</span>, <span class="st">&quot;Semantics × style&quot;</span>,</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true"></a>               <span class="st">&quot;**Planned contrasts**&quot;</span>, <span class="st">&quot;Vio. - int.&lt;br/&gt;(normal)&quot;</span>, <span class="st">&quot;MCI - int.&lt;br/&gt;(normal)&quot;</span>,</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true"></a>               <span class="st">&quot;Vio. - int.&lt;br/&gt;(fairytale)&quot;</span>, <span class="st">&quot;MCI - int.&lt;br/&gt;(fairytale)&quot;</span>), tab)</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true"></a></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true"></a><span class="co"># Remove old column names</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true"></a><span class="kw">names</span>(tab) &lt;-<span class="st"> </span><span class="ot">NULL</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true"></a></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true"></a><span class="co"># Create a huxtable and output as markdown</span></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true"></a>huxt &lt;-<span class="st"> </span><span class="kw">huxtable</span>(tab, <span class="dt">add_colnames =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true"></a><span class="kw">print_md</span>(huxt, <span class="dt">max_width =</span> <span class="ot">Inf</span>)</span></code></pre></div>
+<table style="width:100%;">
+<colgroup>
+<col width="18%" />
+<col width="14%" />
+<col width="5%" />
+<col width="15%" />
+<col width="5%" />
+<col width="15%" />
+<col width="5%" />
+<col width="15%" />
+<col width="5%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th align="left">Rating 1</th>
+<th></th>
+<th align="left">Rating 2</th>
+<th></th>
+<th align="left">Verb-Related N400</th>
+<th></th>
+<th align="left">Picture-Related N400</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Model output</strong></td>
+<td align="left"><strong><em>F</em></strong> (<strong><em>df</em></strong>)</td>
+<td><strong><em>p</em></strong></td>
+<td align="left"><strong><em>F</em></strong> (<strong><em>df</em></strong>)</td>
+<td><strong><em>p</em></strong></td>
+<td align="left"><strong><em>F</em></strong> (<strong><em>df</em></strong>)</td>
+<td><strong><em>p</em></strong></td>
+<td align="left"><strong><em>F</em></strong> (<strong><em>df</em></strong>)</td>
+<td><strong><em>p</em></strong></td>
+</tr>
+<tr class="even">
+<td>Semantics</td>
+<td align="left">0.06<br />(2, 90.1)</td>
+<td>0.945</td>
+<td align="left">0.05<br />(2, 78.9)</td>
+<td>0.949</td>
+<td align="left">2.15<br />(2, 167.0)</td>
+<td>0.120</td>
+<td align="left">1.89<br />(2, 75.8)</td>
+<td>0.158</td>
+</tr>
+<tr class="odd">
+<td>Style</td>
+<td align="left">1.79<br />(1, 22.2)</td>
+<td>0.195</td>
+<td align="left">5.85<br />(1, 23.1)</td>
+<td>0.024</td>
+<td align="left">1.06<br />(1, 49.8)</td>
+<td>0.308</td>
+<td align="left">6.92<br />(1, 6692.5)</td>
+<td>0.009</td>
+</tr>
+<tr class="even">
+<td>Semantics × style</td>
+<td align="left">0.22<br />(2, 161.9)</td>
+<td>0.800</td>
+<td align="left">0.22<br />(2, 69.6)</td>
+<td>0.804</td>
+<td align="left">1.56<br />(2, 58.8)</td>
+<td>0.218</td>
+<td align="left">4.78<br />(2, 82.2)</td>
+<td>0.011</td>
+</tr>
+<tr class="odd">
+<td><strong>Planned contrasts</strong></td>
+<td align="left"><strong>Est. [95% CI]</strong></td>
+<td><strong><em>p</em></strong></td>
+<td align="left"><strong>Est. [95% CI]</strong></td>
+<td><strong><em>p</em></strong></td>
+<td align="left"><strong>Est. [95% CI]</strong></td>
+<td><strong><em>p</em></strong></td>
+<td align="left"><strong>Est. [95% CI]</strong></td>
+<td><strong><em>p</em></strong></td>
+</tr>
+<tr class="even">
+<td>Vio. - int.<br />(normal)</td>
+<td align="left">0.00<br />[-0.05, 0.06]</td>
+<td>1.000</td>
+<td align="left">0.01<br />[-0.05, 0.07]</td>
+<td>1.000</td>
+<td align="left">-0.02<br />[-0.35, 0.30]</td>
+<td>1.000</td>
+<td align="left">-0.22<br />[-0.77, 0.33]</td>
+<td>0.720</td>
+</tr>
+<tr class="odd">
+<td>MCI - int.<br />(normal)</td>
+<td align="left">0.00<br />[-0.05, 0.06]</td>
+<td>1.000</td>
+<td align="left">0.01<br />[-0.06, 0.07]</td>
+<td>1.000</td>
+<td align="left">-0.38<br />[-0.74, -0.03]</td>
+<td>0.033</td>
+<td align="left">-0.75<br />[-1.27, -0.23]</td>
+<td>0.003</td>
+</tr>
+<tr class="even">
+<td>Vio. - int.<br />(fairytale)</td>
+<td align="left">0.01<br />[-0.04, 0.07]</td>
+<td>1.000</td>
+<td align="left">0.00<br />[-0.06, 0.06]</td>
+<td>1.000</td>
+<td align="left">0.06<br />[-0.26, 0.39]</td>
+<td>1.000</td>
+<td align="left">0.27<br />[-0.28, 0.82]</td>
+<td>0.540</td>
+</tr>
+<tr class="odd">
+<td>MCI - int.<br />(fairytale)</td>
+<td align="left">0.00<br />[-0.06, 0.05]</td>
+<td>1.000</td>
+<td align="left">-0.01<br />[-0.08, 0.05]</td>
+<td>1.000</td>
+<td align="left">0.02<br />[-0.34, 0.37]</td>
+<td>1.000</td>
+<td align="left">0.05<br />[-0.48, 0.57]</td>
+<td>1.000</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="co"># Export as a word file (after some re-formatting)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>tab_word &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">lapply</span>(tab, <span class="cf">function</span>(x){<span class="kw">gsub</span>(<span class="st">&quot;&lt;br/&gt;&quot;</span>, <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>, x)}))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>tab_word &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">lapply</span>(tab_word, <span class="cf">function</span>(x){<span class="kw">gsub</span>(<span class="st">&quot;</span><span class="ch">\\</span><span class="st">*|</span><span class="ch">\\</span><span class="st">_&quot;</span>, <span class="st">&quot;&quot;</span>, x)}))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>huxt_word &lt;-<span class="st"> </span><span class="kw">huxtable</span>(tab_word, <span class="dt">add_colnames =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a><span class="kw">quick_docx</span>(huxt_word, <span class="dt">file =</span> <span class="st">&quot;EEG/tables/lmm_table.docx&quot;</span>, <span class="dt">open =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="co"># System specs and package versions</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="kw">sessionInfo</span>()</span></code></pre></div>
 <pre><code>## R version 4.0.2 (2020-06-22)
 ## Platform: x86_64-apple-darwin17.0 (64-bit)
 ## Running under: macOS Catalina 10.15.6
@@ -230,28 +357,33 @@ a.sourceLine {
 ## [1] stats     graphics  grDevices datasets  utils     methods   base     
 ## 
 ## other attached packages:
-##  [1] magrittr_1.5    forcats_0.5.0   stringr_1.4.0   dplyr_1.0.0     purrr_0.3.4     readr_1.3.1     tidyr_1.1.0    
-##  [8] tibble_3.0.3    ggplot2_3.3.2   tidyverse_1.3.0 Rmisc_1.5       plyr_1.8.6      lattice_0.20-41
+##  [1] huxtable_5.0.0  magrittr_1.5    forcats_0.5.0   stringr_1.4.0   dplyr_1.0.0     purrr_0.3.4     readr_1.3.1    
+##  [8] tidyr_1.1.0     tibble_3.0.3    ggplot2_3.3.2   tidyverse_1.3.0 Rmisc_1.5       plyr_1.8.6      lattice_0.20-41
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] nlme_3.1-148        matrixStats_0.56.0  fs_1.5.0            lubridate_1.7.9     httr_1.4.2         
-##  [6] tools_4.0.2         backports_1.1.8     R6_2.4.1            DBI_1.1.0           lazyeval_0.2.2     
-## [11] mgcv_1.8-31         colorspace_1.4-1    withr_2.2.0         tidyselect_1.1.0    compiler_4.0.2     
-## [16] cli_2.0.2           rvest_0.3.6         eegUtils_0.5.0.9000 xml2_1.3.2          plotly_4.9.2.1     
-## [21] scales_1.1.1        digest_0.6.25       rmarkdown_2.3       R.utils_2.9.2       ini_0.3.1          
-## [26] pkgconfig_2.0.3     htmltools_0.5.0     highr_0.8           dbplyr_1.4.4        fastmap_1.0.1      
-## [31] htmlwidgets_1.5.1   rlang_0.4.7         readxl_1.3.1        rstudioapi_0.11     prettydoc_0.4.0    
-## [36] shiny_1.5.0         generics_0.0.2      jsonlite_1.7.0      R.oo_1.23.0         R.matlab_3.6.2     
-## [41] Matrix_1.2-18       Rcpp_1.0.5          munsell_0.5.0       fansi_0.4.1         abind_1.4-5        
-## [46] lifecycle_0.2.0     R.methodsS3_1.8.0   yaml_2.2.1          stringi_1.4.6       MASS_7.3-51.6      
-## [51] grid_4.0.2          blob_1.2.1          parallel_4.0.2      listenv_0.8.0       promises_1.1.1     
-## [56] crayon_1.3.4        miniUI_0.1.1.1      haven_2.3.1         splines_4.0.2       hms_0.5.3          
-## [61] knitr_1.29          pillar_1.4.6        future.apply_1.6.0  codetools_0.2-16    reprex_0.3.0       
-## [66] glue_1.4.1          evaluate_0.14       data.table_1.13.0   renv_0.12.0         modelr_0.1.8       
-## [71] vctrs_0.3.2         httpuv_1.5.4        cellranger_1.1.0    gtable_0.3.0        future_1.18.0      
-## [76] assertthat_0.2.1    xfun_0.16           mime_0.9            xtable_1.8-4        broom_0.7.0        
-## [81] pracma_2.2.9        later_1.1.0.1       viridisLite_0.3.0   signal_0.7-6        globals_0.12.5     
-## [86] ellipsis_0.3.1</code></pre>
+##   [1] minqa_1.2.4         colorspace_1.4-1    ellipsis_0.3.1      rio_0.5.16          flextable_0.5.11   
+##   [6] estimability_1.3    base64enc_0.1-3     fs_1.5.0            rstudioapi_0.11     listenv_0.8.0      
+##  [11] R.matlab_3.6.2      mvtnorm_1.1-1       fansi_0.4.1         lubridate_1.7.9     xml2_1.3.2         
+##  [16] codetools_0.2-16    splines_4.0.2       R.methodsS3_1.8.0   knitr_1.29          eegUtils_0.5.0.9000
+##  [21] afex_0.27-2         jsonlite_1.7.0      nloptr_1.2.2.2      broom_0.7.0         dbplyr_1.4.4       
+##  [26] R.oo_1.23.0         shiny_1.5.0         compiler_4.0.2      httr_1.4.2          emmeans_1.4.8      
+##  [31] backports_1.1.8     assertthat_0.2.1    Matrix_1.2-18       fastmap_1.0.1       lazyeval_0.2.2     
+##  [36] cli_2.0.2           later_1.1.0.1       htmltools_0.5.0     tools_4.0.2         lmerTest_3.1-2     
+##  [41] gtable_0.3.0        glue_1.4.1          reshape2_1.4.4      Rcpp_1.0.5          carData_3.0-4      
+##  [46] cellranger_1.1.0    vctrs_0.3.2         nlme_3.1-148        xfun_0.16           globals_0.12.5     
+##  [51] openxlsx_4.1.5      lme4_1.1-23         rvest_0.3.6         mime_0.9            miniUI_0.1.1.1     
+##  [56] lifecycle_0.2.0     renv_0.12.0         statmod_1.4.34      future_1.18.0       MASS_7.3-51.6      
+##  [61] scales_1.1.1        hms_0.5.3           promises_1.1.1      parallel_4.0.2      yaml_2.2.1         
+##  [66] curl_4.3            gdtools_0.2.2       stringi_1.4.6       highr_0.8           boot_1.3-25        
+##  [71] zip_2.1.1           cpp11_0.2.1         commonmark_1.7      systemfonts_0.3.1   rlang_0.4.7        
+##  [76] pkgconfig_2.0.3     matrixStats_0.56.0  pracma_2.2.9        evaluate_0.14       htmlwidgets_1.5.1  
+##  [81] tidyselect_1.1.0    R6_2.4.1            generics_0.0.2      ini_0.3.1           DBI_1.1.0          
+##  [86] pillar_1.4.6        haven_2.3.1         foreign_0.8-80      withr_2.2.0         mgcv_1.8-31        
+##  [91] prettydoc_0.4.0     abind_1.4-5         future.apply_1.6.0  modelr_0.1.8        crayon_1.3.4       
+##  [96] car_3.0-8           uuid_0.1-4          plotly_4.9.2.1      officer_0.3.14      rmarkdown_2.3      
+## [101] grid_4.0.2          readxl_1.3.1        data.table_1.13.0   blob_1.2.1          reprex_0.3.0       
+## [106] digest_0.6.25       xtable_1.8-4        httpuv_1.5.4        numDeriv_2016.8-1.1 R.utils_2.9.2      
+## [111] signal_0.7-6        munsell_0.5.0       viridisLite_0.3.0</code></pre>
 </section>
 
 

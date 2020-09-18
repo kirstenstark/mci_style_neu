@@ -1,11 +1,11 @@
-#/* Run this first piece of code only if you want to create a markdown report for GitHub/OSF
+#/* Run this first piece of code only if you want to create a html report for GitHub/OSF
 rmarkdown::render(input = rstudioapi::getSourceEditorContext()$path,
-                  output_format = rmarkdown::md_document(),
+                  output_format = prettydoc::html_pretty(),
                   output_dir = "Scripts/Output",
                   knit_root_dir = getwd()) #*/
 #+ results="asis"
 
-### MCI_STYLE_NEU TABLES SCRIPT ###
+## MCI_STYLE_NEU TABLES SCRIPT ##
 
 # Creates a table for the output of our four linear mixed-effects models. The upper half of the table includes ANOVA-
 # style type III tests (F-tests), the bottom half contains planned follow-up contrasts. For the F-tests, F-values,

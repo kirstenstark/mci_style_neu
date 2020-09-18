@@ -1,10 +1,10 @@
-#/* Run this first piece of code only if you want to create a markdown report for GitHub/OSF
+#/* Run this first piece of code only if you want to create a html report for GitHub/OSF
 rmarkdown::render(input = rstudioapi::getSourceEditorContext()$path,
-                  output_format = rmarkdown::html_document(),
+                  output_format = prettydoc::html_pretty(),
                   output_dir = "Scripts/Output",
                   knit_root_dir = getwd()) #*/
 
-### MCI_STYLE_NEU DESCRIPTIVES SCRIPT ###
+## MCI_STYLE_NEU DESCRIPTIVES SCRIPT ##
 
 # Gives descriptive information about the number of (a) rejected ERP epochs and (b) errors or unrealistically short
 # reaction times per participant. For the latter, an ANOVA also checks whether the number of errors differs between
