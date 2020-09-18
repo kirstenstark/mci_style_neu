@@ -1,6 +1,6 @@
 #/* Run this first piece of code only if you want to create a markdown report for GitHub/OSF
 rmarkdown::render(input = rstudioapi::getSourceEditorContext()$path,
-                  output_format = rmarkdown::md_document(),
+                  output_format = rmarkdown::html_document(),
                   output_dir = "Scripts/Output",
                   knit_root_dir = getwd()) #*/
 

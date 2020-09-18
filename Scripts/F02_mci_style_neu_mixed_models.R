@@ -73,7 +73,7 @@ mod_N400_pict <- lmer_alt(N400_pict ~ semantics*style + (semantics*style||partic
                           data = a1, control = control_params)
 
 # Create a list of all four models
-models <- list("VALENCE" = mod_valence, "AROUSAL" = mod_arousal,
+models <- list("RATING_1" = mod_valence, "RATING_2" = mod_arousal,
                "N400_VERB" = mod_N400_verb, "N400_PICT" = mod_N400_pict)
 
 # F-tests (type III tests)
