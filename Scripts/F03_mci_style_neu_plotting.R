@@ -26,16 +26,16 @@ avgs <- readRDS("EEG/export/avgs.RDS")
 a1 %<>% filter(!error) %>% na.omit()
 
 # Define ggplot theme
-styling <-   theme(panel.grid = element_blank(),
-                   panel.border = element_rect(colour = "black", size = 1),
-                   legend.position = "right",
-                   axis.ticks = element_line(colour = "black"),
-                   axis.title = element_text(color = "black", family = "Helvetica", size = 10),
-                   axis.text = element_text(color = "black", family = "Helvetica", size = 10),
-                   legend.title = element_text(color = "black", family = "Helvetica", size = 10, face = "bold"),
-                   legend.text = element_text(color = "black", family = "Helvetica", size = 10),
-                   strip.background = element_blank(),
-                   strip.text = element_text(color = "black", family = "Helvetica", size = 10))
+styling <- theme(panel.grid = element_blank(),
+                 panel.border = element_rect(colour = "black", size = 1),
+                 legend.position = "right",
+                 axis.ticks = element_line(colour = "black"),
+                 axis.title = element_text(color = "black", family = "Helvetica", size = 10),
+                 axis.text = element_text(color = "black", family = "Helvetica", size = 10),
+                 legend.title = element_text(color = "black", family = "Helvetica", size = 10, face = "bold"),
+                 legend.text = element_text(color = "black", family = "Helvetica", size = 10),
+                 strip.background = element_blank(),
+                 strip.text = element_text(color = "black", family = "Helvetica", size = 10))
 
 # Rename some factor levels
 a1 %<>% mutate(semantics = factor(semantics, levels = c("int", "vio", "mci"),
