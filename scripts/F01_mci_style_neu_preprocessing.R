@@ -4,9 +4,8 @@ rmarkdown::render(input = rstudioapi::getSourceEditorContext()$path,
                   output_dir = "output",
                   knit_root_dir = getwd()) #*/
 #' ---
-#' author: Aristei et al.
-#' date: 2020
-#' classoption: landscape
+#' author: ""
+#' classoption: "landscape"
 #' ---
 
 ## MCI_STYLE_NEU PREPROCESSING SCRIPT ##

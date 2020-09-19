@@ -4,9 +4,8 @@ rmarkdown::render(input = rstudioapi::getSourceEditorContext()$path,
                   output_dir = "output",
                   knit_root_dir = getwd()) #*/
 #' ---
-#' author: Aristei et al.
-#' date: 2020
-#' classoption: landscape
+#' author: ""
+#' classoption: "landscape"
 #' ---
 
 ## MCI_STYLE_NEU PLOTTING SCRIPT ##
@@ -72,14 +71,19 @@ summs <- map(c("N400_verb", "N400_pict"), function(dv){
 
 # Bar plots for verb-related and picture-related N400
 bars <- map(c("N400_verb", "N400_pict"), function(what){
+  if (what == "N400_verb"){
+    ylims <- list(min = -1, max = 1.5, step = 0.5)
+  } else {
+    ylims <- list(min = -4, max = 1, step = 1)
+  }
   # Brackets and stars for statistical significance
   significant <- list("N400_verb" = data.frame(style = as.factor("Normal context"),
-                                               ymin = c(-0.2, -0.5, -0.2),
-                                               ymax = c(-0.5, -0.5, -0.5),
+                                               ymin = c(-0.1, -0.25, -0.15),
+                                               ymax = c(-0.25, -0.25, -0.25),
                                                xmin = c(0.7, 0.7, 1.3),
                                                xmax = c(0.7, 1.3, 1.3),
                                                star = "*",
-                                               ystar = -0.57),
+                                               ystar = -0.28),
                       "N400_pict" = data.frame(style = as.factor("Normal context"),
                                                ymin = c(0.2, 0.5, 0.2),
                                                ymax = c(0.5, 0.5, 0.5),
@@ -96,9 +100,9 @@ bars <- map(c("N400_verb", "N400_pict"), function(what){
                label.size = 0) +
     scale_fill_manual(values = condition_colors) +
     labs(fill = "Semantics") +
-    coord_cartesian(ylim = c(-4, 1)) +
+    coord_cartesian(ylim = c(ylims$min, ylims$max)) +
     scale_x_discrete(labels = c("Normal\ncontext", "Fairytale\ncontext")) +
-    scale_y_continuous(name = "ROI amplitude (µV)", breaks = seq(-4, 1, 1)) +
+    scale_y_continuous(name = "ROI amplitude (µV)", breaks = seq(ylims$min, ylims$max, ylims$step)) +
     geom_hline(yintercept = 0) +
     theme_bw() + styling + theme(axis.title.x = element_blank(), legend.position = "none")
 }) %>% set_names(c("N400_verb", "N400_pict"))
@@ -128,6 +132,10 @@ stim <- ggplot() + theme_void() + theme(plot.background = element_rect(fill = "w
 
 # ERP waveforms for verb-related and picture-related N400
 waves <- map(c("Verb-related", "Picture-related"), function(what){
+  # Limits for y-axis
+  ymin <- ifelse(what == "Verb-related", -1.5, -5)
+  ymax <- ifelse(what == "Verb-related", 2.5, 3)
+  step <- ifelse(what == "Verb-related", 1, 2)
   # Which time window to shade
   tmin <- ifelse(what == "Verb-related", 0.300, 0.150)
   tmax <- ifelse(what == "Verb-related", 0.500, 0.350)
@@ -138,9 +146,9 @@ waves <- map(c("Verb-related", "Picture-related"), function(what){
     group_by(semantics, style, type, .sample) %>% summarise_at(channel_names(.), mean, na.rm = TRUE)
   highlight <- data.frame(seq(tmin, tmax, 0.002),
                           highlight %>% filter(type == what, semantics == "MCI", style == "Normal context") %>%
-                            signal_tbl %>% select(ROI),
+                            signal_tbl %>% select(all_of(ROI)),
                           highlight %>% filter(type == what, semantics == "Intuitive", style == "Normal context") %>%
-                            signal_tbl %>% select(ROI))
+                            signal_tbl %>% select(all_of(ROI)))
   names(highlight) <- c(".time", "mci", "int")
   highlight$style <- as.factor("Normal context")
   # Stars for significance levels
@@ -154,14 +162,14 @@ waves <- map(c("Verb-related", "Picture-related"), function(what){
     ggplot(aes(x = .time, y = .value, color = semantics)) +
     geom_rect(aes(xmin = tmin, xmax = tmax, ymin = -Inf, ymax = Inf), fill = "gray90", inherit.aes = FALSE) +
     geom_ribbon(data = highlight, aes(x = .time, ymin = mci, ymax = int), fill = "#ffff33", inherit.aes = FALSE) +
-    geom_text(data = star, aes(x = tmin+(tmax-tmin)/2, y = 2.5, label = stars), inherit.aes = FALSE, size = 6) +
+    geom_text(data = star, aes(x = tmin+(tmax-tmin)/2, y = ymax-step/4, label = stars), inherit.aes = FALSE, size = 6) +
     geom_hline(yintercept = 0, linetype = "dotted") +
     geom_vline(xintercept = 0, linetype = "dotted") +
     stat_summary(fun = "mean", geom = "line") +
     scale_color_manual(values = condition_colors) +
-    coord_cartesian(xlim = c(-0.2, 0.8), ylim = c(-5.5, 3.5), expand = FALSE) +
+    coord_cartesian(xlim = c(-0.2, 0.8), ylim = c(ymin-step/4, ymax+step/4), expand = FALSE) +
     scale_x_continuous(breaks = seq(-0.1, 0.7, 0.2), labels = seq(-100, 700, 200)) +
-    scale_y_continuous(breaks = seq(-5, 3, 2)) +
+    scale_y_continuous(breaks = seq(ymin, ymax, step)) +
     xlab("Time (ms)") + ylab("ROI amplitude (µV)") +
     labs(color = NULL) +
     theme_bw() + styling + theme(legend.position = "none") +

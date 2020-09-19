@@ -4,9 +4,8 @@ rmarkdown::render(input = rstudioapi::getSourceEditorContext()$path,
                   output_dir = "output",
                   knit_root_dir = getwd()) #*/
 #' ---
-#' author: Aristei et al.
-#' date: 2020
-#' classoption: landscape
+#' author: ""
+#' classoption: "landscape"
 #' ---
 #+ results="asis"
 
@@ -18,6 +17,8 @@ rmarkdown::render(input = rstudioapi::getSourceEditorContext()$path,
 # intervals, and p-values are printed.
 
 # Load packages
+library(officer)     # Version 0.3.14
+library(flextable)   # Version 0.5.11
 library(huxtable)    # Version 5.0.0
 
 # Load output from mixed models
@@ -60,7 +61,7 @@ tab <- rbind(anovas, conts)
 tab <- rbind(c("Rating 1", "", "Rating 2", "", "Verb-Related N400", "", "Picture-Related N400", ""), tab)
 
 # Add a stub column
-tab <- cbind(c("", "**Model output**", "Semantics", "Style", "Semantics × style",
+tab <- cbind(c("", "**Fixed effects**", "Semantics", "Style", "Semantics × style",
                "**Planned contrasts**", "Vio. - int.<br/>(normal)", "MCI - int.<br/>(normal)",
                "Vio. - int.<br/>(fairytale)", "MCI - int.<br/>(fairytale)"), tab)
 
