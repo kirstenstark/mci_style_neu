@@ -8,7 +8,7 @@ rmarkdown::render(input = rstudioapi::getSourceEditorContext()$path,
 #' classoption: "landscape"
 #' ---
 
-## MCI_STYLE_NEU PLOTTING SCRIPT ##
+## MCI_STYLE_NEU PLOTS SCRIPT ##
 
 # Creates a bar plot, an ERP waveform, and scalp topographies for the N400 effect for the different semantic conditions
 # (intuitive, violation, MCI) within each type of narrative  context (normal, fairytale), separately for verb- and
