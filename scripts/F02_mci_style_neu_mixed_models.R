@@ -61,11 +61,11 @@ contrasts(a1$semantics) <- ginv(contrasts.semantics)
 control_params <- lmerControl(calc.derivs = FALSE, optimizer = "bobyqa", optCtrl = list(maxfun = 2e5))
 
 # LMM for rating 1
-mod_valence <- lmer_alt(rating_1 ~ semantics*style + (semantics*style||participant) + (semantics*style||item),
+mod_rating1 <- lmer_alt(rating_1 ~ semantics*style + (semantics*style||participant) + (semantics*style||item),
                         data = a1, control = control_params)
 
 # LMM for rating 2
-mod_arousal <- lmer_alt(rating_2 ~ semantics*style + (semantics*style||participant) + (semantics*style||item),
+mod_rating2 <- lmer_alt(rating_2 ~ semantics*style + (semantics*style||participant) + (semantics*style||item),
                         data = a1, control = control_params)
 
 # LMM for verb-related N400
@@ -77,7 +77,7 @@ mod_N400_pict <- lmer_alt(N400_pict ~ semantics*style + (semantics*style||partic
                           data = a1, control = control_params)
 
 # Create a list of all four models
-models <- list("RATING_1" = mod_valence, "RATING_2" = mod_arousal,
+models <- list("RATING_1" = mod_rating, "RATING_2" = mod_rating2,
                "N400_VERB" = mod_N400_verb, "N400_PICT" = mod_N400_pict)
 
 # F-tests (type III tests)
