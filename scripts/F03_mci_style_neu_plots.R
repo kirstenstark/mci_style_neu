@@ -52,7 +52,7 @@ avgs %<>% mutate(semantics = factor(semantics, levels = c("int", "vio", "mci"),
                                 labels = c("Normal context", "Fairytale context")))
 
 # Define colours for conditions
-condition_colors <- viridisLite::plasma(3, end = 0.9, direction = -1)[c(1, 2, 3)] %>%
+condition_colors <- viridisLite::viridis(3, begin=0.3,end = 0.9, direction = -1)[c(1, 2, 3)] %>%#plasma(3, end = 0.9, direction = -1)[c(1, 2, 3)] %>%
   set_names(c("Intuitive", "Violation", "MCI"))
 
 ## BAR PLOTS ## --------------------------------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ summs <- map(c("N400_verb", "N400_pict"), function(dv){
 # Bar plots for verb-related and picture-related N400
 bars <- map(c("N400_verb", "N400_pict"), function(what){
   if (what == "N400_verb"){
-    ylims <- list(min = -1, max = 1.5, step = 0.5)
+    ylims <- list(min = -0.25, max = 1, step = 0.25)#(min = -1, max = 1.5, step = 0.5)
   } else {
     ylims <- list(min = -4, max = 1, step = 1)
   }
@@ -200,7 +200,8 @@ topos <- map(c("Verb-related", "Picture-related"), function(what){
   }
   topos <- map(1:4, function(x){
     p <- eegUtils::topoplot(data = tmp, quantity = colnames(tmp)[x], limits = c(-0.7, 0.7), r = 0.9,
-                            palette = "plasma", contour = FALSE, highlights = els, scaling = 0.5)
+                            palette = "viridis", #palette = "plasma", 
+                            contour = FALSE, highlights = els, scaling = 0.5)
     p$layers[[6]]$aes_params$size <- 0.1
     p$layers[[7]]$aes_params$colour <- "black"
     p <- p + theme(legend.position = "none", plot.title = element_text(hjust = 0.5, size = 10,
@@ -210,7 +211,7 @@ topos <- map(c("Verb-related", "Picture-related"), function(what){
 # Create a colorbar
 simdat1 <- data.frame(a = 1:10, b = 1:10, c = seq(-0.7, 0.7, length.out = 10))
 colbar <- get_legend(ggplot(simdat1, aes(x = a, y = b, fill = c)) + geom_raster() + geom_line() +
-                       scale_fill_viridis_c(option = "plasma",
+                       scale_fill_viridis_c(option = "viridis",#plasma",
                                             guide = guide_colorbar(ticks = FALSE,title.position = "left",
                                                                    label.hjust = 1), breaks = c(-0.7, 0, 0.7)) +
                        labs(fill = "Ampl.\n(µV)") +
