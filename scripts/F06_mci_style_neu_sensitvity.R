@@ -10,7 +10,8 @@ rmarkdown::render(input = rstudioapi::getSourceEditorContext()$path,
 
 ## MCI_STYLE_NEU SENSITIVITY ANALYSIS SCRIPT ##
 
-# Bla bla blub
+# Script conducts sensitivity analysis for nested effects of interest 
+# "stylenor:semantics2" of verb and picture models. 
 
 ## SETUP ## ------------------------------------------------------------------------------------------------------------
 
@@ -22,9 +23,9 @@ library(afex)         # Version 0.27-2
 library(emmeans)      # Version 1.4.8
 library(tidyverse)    # Version 1.3.0
 library(magrittr)     # Version 1.5
-library(simr)         # Version ???
-library(furrr)        # Version ???
-library(glue)         # Version ???
+library(simr)         # Version 1.0.7
+library(furrr)        # Version 0.3.1
+library(glue)         # Version 1.4.1
 
 # Load preprocessed data
 a1 <- readRDS("EEG/export/a1.RDS")
@@ -53,7 +54,7 @@ contrasts(a1$semantics) <- ginv(contrasts.semantics)
 
 ## LINEAR MIXED-EFFECTS MODELS ## --------------------------------------------------------------------------------------
 
-# Specifiy settings for optimization in lmer
+# Specify settings for optimization in lmer
 control_params <- lmerControl(calc.derivs = FALSE, optimizer = "bobyqa", optCtrl = list(maxfun = 2e5))
 
 # LMM for verb-related N400
@@ -65,13 +66,13 @@ mod_N400_pict <- lmer_alt(N400_pict ~ style/semantics + (semantics*style||partic
                           data = a1, control = control_params)
 
 # Create a list of all four models
-models <- list("N400_VERB" = mod_N400_verb, "N400_PICT" = mod_N400_pict)
+models <-  list("N400_VERB" = mod_N400_verb, "N400_PICT" = mod_N400_pict)
 
 # Settings for sensitivity simulation
 effect_name <- "stylenor:semantics2"
-effect_sizes <- seq(0.1, 1.0, 0.1)
+effect_sizes <- seq(0.1, 0.2, 0.1)     # seq(0.1, 1.0, 0.1)
 alpha <- 0.05
-n_sim <- 1000
+n_sim <- 2          # 1000
 n_cores <- 8
 
 # Set up parallel processing
@@ -88,6 +89,8 @@ power <- map_dfr(models, function(model) {
   future_map_dfr(effect_sizes, function(effect_size,
                                         model_ = model,
                                         control_params_ = control_params) {
+    # Print progress
+    message(glue("Finished simulating effect size {effect_size} for model {dep_var}."))
     
     # Generate many simulations (response vectors) with the new effect size
     fixef(model_)[effect_name] <- effect_size
@@ -99,13 +102,21 @@ power <- map_dfr(models, function(model) {
       # Re-fit the model
       new_data[[dep_var]] <- resp_sim
       new_model <- update(model_, data = new_data, control = control_params_)
+      model_warnings <- names(warnings(new_model))
+      model_warnings_text <- paste(model_warnings, collapse = " // ")
+      assign("last.warning", NULL, envir = baseenv())
       
       # Extract model outputs
       estimate <- round(fixef(new_model)[effect_name], 4)
       p_value <- round(summary(new_model)$coefficients[effect_name, "Pr(>|t|)"], 6)
       is_significant <- p_value < alpha
-      is_singular <- isSingular(new_model)
-      is_converged <- new_model@optinfo$conv$opt == 0
+      is_singular_check <- isSingular(new_model)
+      is_converged_opt <- new_model@optinfo$conv$opt == 0
+      is_singular <- 
+        any(map_lgl(tolower(names(warnings(new_model))), str_detect, "singular")) 
+      is_converged <- 
+        any(map_lgl(tolower(names(warnings(new_model))), str_detect, "converge"))
+      
       
       # Return model outputs
       data.frame(
@@ -116,7 +127,10 @@ power <- map_dfr(models, function(model) {
         p_value,
         is_significant,
         is_singular,
-        is_converged
+        is_converged,
+        is_singular_check,
+        is_converged_opt,
+        model_warnings_text
       )
     })
   }, .options=furrr_options(seed = 42))
@@ -135,13 +149,15 @@ power_summary <- power %>%
     n_sim = n(),
     n_significant = sum(is_significant),
     .groups = "drop"
-  ) %>%
-  mutate(power = binom::binom.confint(n_significant, n_sim, conf_level, conf_method)) %>%
-  unnest(power, names_sep = "_") %>%
-  select(-c(power_method, power_x, power_n)) %>%
-  mutate(
-    across(c(estimate_mean, power_mean, power_lower, power_upper), .fns = round, 4)
   )
+power_confint <- with(power_summary, 
+                      binom::binom.confint(
+                        n_significant, n_sim, conf_level, conf_method)) %>%
+  select(-c(method, x, n)) %>%
+  rename(power=mean, power_lower=lower, power_upper=upper)
+power_summary <- cbind(power_summary, power_confint) %>%
+  mutate(
+    across(c(estimate_mean, power, power_lower, power_upper), .fns = round, 4))
 print(power_summary)
 
 # Save to files
