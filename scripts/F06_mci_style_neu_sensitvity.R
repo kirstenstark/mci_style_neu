@@ -10,8 +10,13 @@ rmarkdown::render(input = rstudioapi::getSourceEditorContext()$path,
 
 ## MCI_STYLE_NEU SENSITIVITY ANALYSIS SCRIPT ##
 
-# Script conducts sensitivity analysis for nested effects of interest 
-# "stylenor:semantics2" of verb and picture models. 
+# Runs a sensitivity analysis for the (nested) effect of interest ("stylenor:semantics2")
+# for the verb and picture models. For this sensitivity analysis, the effect size is changed
+# linearly from 0.1 to 1.0 µV, and the model is re-fitted many times tom compute the power
+# at each effect size (defined as the average number of simulated models for which the
+# effect of interest is significant). This is used to determine the smallest effect size
+# at which (given the current participant and item sample sizes) the effect can be detected
+# with sufficient statistical power (e.g., 80 or 90%).
 
 ## SETUP ## ------------------------------------------------------------------------------------------------------------
 
@@ -102,22 +107,15 @@ power <- map_dfr(models, function(model) {
       # Re-fit the model
       new_data[[dep_var]] <- resp_sim
       new_model <- update(model_, data = new_data, control = control_params_)
-      model_warnings <- names(warnings(new_model))
-      model_warnings_text <- paste(model_warnings, collapse = " // ")
-      assign("last.warning", NULL, envir = baseenv())
-      
+
       # Extract model outputs
       estimate <- round(fixef(new_model)[effect_name], 4)
       p_value <- round(summary(new_model)$coefficients[effect_name, "Pr(>|t|)"], 6)
       is_significant <- p_value < alpha
-      is_singular_check <- isSingular(new_model)
-      is_converged_opt <- new_model@optinfo$conv$opt == 0
-      is_singular <- 
-        any(map_lgl(tolower(names(warnings(new_model))), str_detect, "singular")) 
-      is_converged <- 
-        any(map_lgl(tolower(names(warnings(new_model))), str_detect, "converge"))
-      
-      
+      is_singular <- any(grepl("singular", new_model@optinfo$conv$lme4$messages))
+      is_not_converged <- any(grepl("failed to converge", names(warnings())))
+      assign("last.warning", NULL, envir = baseenv())  # Resets warnings for next iter
+
       # Return model outputs
       data.frame(
         dep_var,
@@ -127,10 +125,7 @@ power <- map_dfr(models, function(model) {
         p_value,
         is_significant,
         is_singular,
-        is_converged,
-        is_singular_check,
-        is_converged_opt,
-        model_warnings_text
+        is_not_converged
       )
     })
   }, .options=furrr_options(seed = 42))
@@ -139,7 +134,7 @@ power <- map_dfr(models, function(model) {
 # Stop parallel processing
 plan(sequential)
 
-# Compute power for each model and effect size
+# Summarize across simulations
 conf_level <- 1 - alpha
 conf_method <- "logit"
 power_summary <- power %>%
@@ -148,16 +143,28 @@ power_summary <- power %>%
     estimate_mean = mean(estimate),
     n_sim = n(),
     n_significant = sum(is_significant),
+    perc_singular = mean(is_singular),
+    perc_not_converged = mean(is_not_converged),
     .groups = "drop"
   )
-power_confint <- with(power_summary, 
-                      binom::binom.confint(
-                        n_significant, n_sim, conf_level, conf_method)) %>%
+
+# Compute average power incl. binomial confidence interval
+power_confint <- with(
+  power_summary, 
+  binom::binom.confint(n_significant, n_sim, conf_level, conf_method)) %>%
   select(-c(method, x, n)) %>%
-  rename(power=mean, power_lower=lower, power_upper=upper)
-power_summary <- cbind(power_summary, power_confint) %>%
+  rename(power_mean = mean, power_lower = lower, power_upper = upper)
+
+# Combine and round
+power_summary <- power_summary %>%
+  cbind(power_confint) %>%
   mutate(
-    across(c(estimate_mean, power, power_lower, power_upper), .fns = round, 4))
+    across(
+      .cols = c(
+        estimate_mean, power_mean, power_lower, power_upper,
+        perc_singular, perc_not_converged
+      ),
+      .fns = ~ round(.x, 4)))
 print(power_summary)
 
 # Save to files
