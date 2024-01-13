@@ -107,7 +107,7 @@ power <- map_dfr(models, function(model) {
       # Re-fit the model
       new_data[[dep_var]] <- resp_sim
       new_model <- update(model_, data = new_data, control = control_params_)
-
+      
       # Extract model outputs
       estimate <- round(fixef(new_model)[effect_name], 4)
       p_value <- round(summary(new_model)$coefficients[effect_name, "Pr(>|t|)"], 6)
@@ -115,17 +115,16 @@ power <- map_dfr(models, function(model) {
       is_singular <- any(grepl("singular", new_model@optinfo$conv$lme4$messages))
       is_not_converged <- any(grepl("failed to converge", names(warnings())))
       assign("last.warning", NULL, envir = baseenv())  # Resets warnings for next iter
-
+      
       # Return model outputs
-      data.frame(
-        dep_var,
-        effect_name,
-        effect_size,
-        estimate,
-        p_value,
-        is_significant,
-        is_singular,
-        is_not_converged
+      data.frame(dep_var,
+                 effect_name,
+                 effect_size,
+                 estimate,
+                 p_value,
+                 is_significant,
+                 is_singular,
+                 is_not_converged
       )
     })
   }, .options=furrr_options(seed = 42))
@@ -139,42 +138,27 @@ conf_level <- 1 - alpha
 conf_method <- "logit"
 power_summary <- power %>%
   group_by(dep_var, effect_name, effect_size) %>%
-  summarize(
-    estimate_mean = mean(estimate),
-    n_sim = n(),
-    n_significant = sum(is_significant),
-    perc_singular = mean(is_singular),
-    perc_not_converged = mean(is_not_converged),
-    .groups = "drop"
-  )
+  summarize(estimate_mean = mean(estimate),
+            n_sim = n(),
+            n_significant = sum(is_significant),
+            perc_singular = mean(is_singular),
+            perc_not_converged = mean(is_not_converged),
+            .groups = "drop")
 
 # Compute average power incl. binomial confidence interval
-power_confint <- with(
-  power_summary, 
-  binom::binom.confint(n_significant, n_sim, conf_level, conf_method)) %>%
+power_confint <- with(power_summary, 
+                      binom::binom.confint(n_significant, n_sim, conf_level, conf_method)) %>%
   select(-c(method, x, n)) %>%
   rename(power_mean = mean, power_lower = lower, power_upper = upper)
 
 # Combine and round
 power_summary <- power_summary %>%
   cbind(power_confint) %>%
-  mutate(
-    across(
-      .cols = c(
-        estimate_mean, power_mean, power_lower, power_upper,
-        perc_singular, perc_not_converged
-      ),
-      .fns = ~ round(.x, 4)))
+  mutate(across(.cols = c(estimate_mean, power_mean, power_lower, power_upper,
+                          perc_singular, perc_not_converged),
+                .fns = ~ round(.x, 4)))
 print(power_summary)
 
 # Save to files
 write_csv(power, "EEG/tables/power.csv")
 write_csv(power_summary, "EEG/tables/power_summary.csv")
-
-# TODO:
-# - [x] Confirm average effect size
-# - [~] Log warnings and errors in data frame
-# - [~] Increase n_sim
-# - [x] Loop over different effect sizes from 0.1 - 1.0
-# - [x] Do the same for Bild
-# - [x] Set random seed
