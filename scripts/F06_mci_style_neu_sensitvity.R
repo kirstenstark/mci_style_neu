@@ -75,9 +75,9 @@ models <-  list("N400_VERB" = mod_N400_verb, "N400_PICT" = mod_N400_pict)
 
 # Settings for sensitivity simulation
 effect_name <- "stylenor:semantics2"
-effect_sizes <- seq(0.1, 0.2, 0.1)     # seq(0.1, 1.0, 0.1)
+effect_sizes <- seq(0.1, 0.2, 0.1)  # seq(0.1, 1.0, 0.1)
 alpha <- 0.05
-n_sim <- 2          # 1000
+n_sim <- 2  # 1000
 n_cores <- 8
 
 # Set up parallel processing
@@ -124,10 +124,10 @@ power <- map_dfr(models, function(model) {
                  p_value,
                  is_significant,
                  is_singular,
-                 is_not_converged
-      )
+                 is_not_converged)
     })
-  }, .options=furrr_options(seed = 42))
+  },
+  .options=furrr_options(seed = 42))
 })
 
 # Stop parallel processing
