@@ -37,8 +37,10 @@ files_full <- list.files(list.dirs(list.dirs(
 # Bind all files into one
 df <- data.frame()
 for(i in 1:length(files_full)){
-  temp <- read.csv(files_full[i])
-  df <- rbind(df, temp)
+  if(endsWith(files_full[i], ".csv")){
+    temp <- read.csv(files_full[i])
+    df <- rbind(df, temp)
+  }
 }
 
 ## Language check ## -----------------------------------------
@@ -63,7 +65,7 @@ df %>% filter(presentation_order==1) %>%
   count()
 # age
 df %>% filter(presentation_order==1) %>% 
-  group_by(age) %>% 
+  #group_by(age) %>% 
   summarise(
     mean=mean(age),
     sd=sd(age),
