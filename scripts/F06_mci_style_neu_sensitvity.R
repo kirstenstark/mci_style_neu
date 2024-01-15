@@ -31,6 +31,7 @@ library(magrittr)     # Version 1.5
 library(simr)         # Version 1.0.7
 library(furrr)        # Version 0.3.1
 library(glue)         # Version 1.4.1
+library(testit)       # Version ???
 
 # Load preprocessed data
 a1 <- readRDS("EEG/export/a1.RDS")
@@ -106,15 +107,15 @@ power <- map_dfr(models, function(model) {
       
       # Re-fit the model
       new_data[[dep_var]] <- resp_sim
-      new_model <- update(model_, data = new_data, control = control_params_)
+      is_not_converged <- has_warning(new_model <- update(model_,
+                                                          data = new_data,
+                                                          control = control_params_))
       
       # Extract model outputs
       estimate <- round(fixef(new_model)[effect_name], 4)
       p_value <- round(summary(new_model)$coefficients[effect_name, "Pr(>|t|)"], 6)
       is_significant <- p_value < alpha
       is_singular <- any(grepl("singular", new_model@optinfo$conv$lme4$messages))
-      is_not_converged <- any(grepl("failed to converge", names(warnings())))
-      assign("last.warning", NULL, envir = baseenv())  # Resets warnings for next iter
       
       # Return model outputs
       data.frame(dep_var,
