@@ -32,6 +32,7 @@ library(simr)         # Version 1.0.7
 library(furrr)        # Version 0.3.1
 library(glue)         # Version 1.4.1
 library(testit)       # Version ???
+library(tictoc)       # Version ???
 
 # Load preprocessed data
 a1 <- readRDS("EEG/export/a1.RDS")
@@ -85,6 +86,8 @@ n_cores <- 8
 plan(multisession, workers = n_cores)
 
 # Loop over models (verb/pict)
+message("Launching sensitivity simulations")
+tic()
 power <- map_dfr(models, function(model) {
   
   # Extract data from the original model
@@ -95,7 +98,8 @@ power <- map_dfr(models, function(model) {
   future_map_dfr(effect_sizes, function(effect_size,
                                         model_ = model,
                                         control_params_ = control_params) {
-    # Print progress
+    
+    # Print progress (only gets printed once the worker is done with all effect sizes)
     message(glue("Finished simulating effect size {effect_size} for model {dep_var}."))
     
     # Generate many simulations (response vectors) with the new effect size
@@ -130,6 +134,7 @@ power <- map_dfr(models, function(model) {
   },
   .options=furrr_options(seed = 42))
 })
+toc()
 
 # Stop parallel processing
 plan(sequential)
