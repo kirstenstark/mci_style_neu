@@ -77,7 +77,7 @@ models <-  list("N400_VERB" = mod_N400_verb, "N400_PICT" = mod_N400_pict)
 
 # Settings for sensitivity simulation
 effect_name <- "stylenor:semantics2"
-effect_sizes <- seq(0.1, 0.2, 0.1)  # seq(0.1, 1.0, 0.1)
+effect_sizes <- seq(-1.0, 0.1, 0.1)  # seq(0.1, 1.0, 0.1)
 alpha <- 0.05
 n_sim <- 10  # 1000
 n_cores <- 8
@@ -168,3 +168,37 @@ print(power_summary)
 # Save to files
 write_csv(power, "EEG/tables/power.csv")
 write_csv(power_summary, "EEG/tables/power_summary.csv")
+
+# Define colours for models
+model_colors <- viridisLite::viridis(2, begin=0.3, end = 0.6, direction = -1) %>%
+  set_names(c("Verb-related MCI effect", "Picture-related MCI effect"))
+
+# Plot
+power_summary %>%
+  mutate(model = factor(dep_var,
+                        levels = c("N400_verb", "N400_pict"),
+                        labels = c("Verb-related MCI effect", "Picture-related MCI effect"))) %>%
+  ggplot(aes(x = effect_size)) +
+  geom_ribbon(aes(ymin = power_lower, ymax = power_upper, fill = model), alpha = 0.3) +
+  geom_line(aes(y = power_mean, color = model)) +
+  scale_x_continuous(limits = c(-1.0, 0.0),
+                     breaks = unique(power_summary$effect_size)) +
+  scale_y_continuous(limits = c(0.0, 1.0),
+                     breaks = seq(0.0, 1.0, 0.2),
+                     labels = scales::percent) +
+  scale_color_manual(values = model_colors, aesthetics = c("color", "fill")) +
+  labs(x = "Effect size", y = "Statistical power", color = NULL, fill = NULL) +
+  theme_bw() +
+  theme(panel.grid.minor = element_blank(),
+        panel.border = element_rect(colour = "black", linewidth = 1),
+        legend.position = "top",
+        axis.ticks = element_line(colour = "black"),
+        axis.title = element_text(color = "black", family = "Helvetica", size = 10),
+        axis.text = element_text(color = "black", family = "Helvetica", size = 10),
+        legend.title = element_text(color = "black", family = "Helvetica", size = 10, face = "bold"),
+        legend.text = element_text(color = "black", family = "Helvetica", size = 10),
+        strip.background = element_blank(),
+        strip.text = element_text(color = "black", family = "Helvetica", size = 10))
+
+# Save plot
+ggsave(filename = "EEG/figures/sensitivity.pdf", width = 18, height = 9.9, units = "cm")
