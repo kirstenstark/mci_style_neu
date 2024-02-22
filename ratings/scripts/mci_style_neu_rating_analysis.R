@@ -47,9 +47,6 @@ for(i in 1:length(files_full)){
 # Check whether all participants indicated German as their mother tongue
 df %>% group_by(language) %>% count()
 
-# Check whether 50% of the participants saw version A and B
-df %>% group_by(rating_version) %>% count()
-
 ## Quality check ## ------------------------------------------
 # Make sure none of the participants had zero variance in the ratings
 df %>% group_by(subject) %>% 
@@ -57,6 +54,20 @@ df %>% group_by(subject) %>%
             sd = sd(rating), 
             n = sum(!is.na(rating))) %>% 
   filter(sd == 0)
+
+## Subset data to final set ## -------------------------------
+# Check whether 50% of the participants saw version A and B
+df %>% group_by(rating_version) %>% count() %>% mutate(n=n/50)
+# We planned 16 ratings per story each: Select the first 16 data
+# sets in version A and version B
+df %>% filter(rating_version=="versionA") %>% 
+  count(subject) %>% select(subject) %>% arrange(subject) -> a 
+a <- a[1:16,]
+df %>% filter(rating_version=="versionB") %>% 
+  count(subject) %>% select(subject) %>% arrange(subject) -> b
+b <- b[1:16,]
+df %>% filter((subject %in% a | subject %in% b) & !is.na(subject)) -> df
+df %>% group_by(rating_version) %>% summarise(length(unique(subject)))
 
 ## Participant descriptives ## ------------------------------
 # gender
